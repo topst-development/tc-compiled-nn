@@ -1,0 +1,136 @@
+# Build directories
+build/
+Build/
+build-*/
+Build-*/
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+Testing/
+CTestTestfile.cmake
+Makefile
+*_quantized/CMakeLists.txt
+
+# IDE generated files
+.idea/
+.vscode/
+*.code-workspace
+
+# macOS
+*.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Visual Studio
+*.VC.db
+*.VC.VC.opendb
+*.vcxproj*
+*.sln
+*.suo
+*.ncb
+*.user
+*.vcxproj.user
+*.filters
+*.pdb
+
+# Xcode
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcworkspace
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+
+# Compiled Object files
+*.obj
+*.o
+*.lo
+*.la
+*.al
+*.libs
+*.a
+*.lib
+*.dll
+*.dylib
+*.so
+*.so.*
+*.d
+
+# Executables and shared libraries
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Static libraries
+*.a
+*.lib
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# Byproducts of CMake (modules, cache, etc.)
+/CMakeFiles/
+/CMakeCache.txt
+/CMakeScripts/
+/CMakeDoxyfile
+/cmake_install.cmake
+/install_manifest.txt
+/Testing/
+/CTestTestfile.cmake
+
+# Byproducts of building with Make
+Makefile
+CMakeFiles/
+
+# Byproducts of building with Ninja
+.ninja_log
+.ninja_deps
+build.ninja
+rules.ninja
+
+# Byproducts of building with MSBuild
+*.vcxproj*
+*.sln
+*.suo
+*.ncb
+*.user
+*.filters
+*.pdb
+
+# Byproducts of building with Xcode
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcworkspace
+xcuserdata/
+
+# Miscellaneous
+.DS_Store
+*.swp
+*.bak
+*.backup
+*.tmp
+*.temp
+*.old
+*.orig
+*.rej
+*.~*~
+*.#*
+.#*
+
+# End of file
+
