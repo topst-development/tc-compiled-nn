@@ -134,3 +134,5 @@ xcuserdata/
 
 # End of file
 
+# Supplied model library; preserve the verified runtime ABI.
+!/yolov8s_quantized/net.so

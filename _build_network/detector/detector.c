@@ -327,9 +327,11 @@ void softmax_float(tensor_t* src, tensor_t* dst, int stride)
             sum += e;
         }
 
+
         if (sum > 0) {
+            float r_sum = 1. / sum;
             for (c = 0 ; c < num_class ; c++)
-                *conf++ = e_array[c] / sum;
+                *conf++ = e_array[c] * r_sum;
         }
         cls_conf += stride;
     }

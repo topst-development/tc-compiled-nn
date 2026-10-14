@@ -12,6 +12,18 @@ list(SORT SUB_DIRS)
 set(BUILD_SRC "${CMAKE_CURRENT_SOURCE_DIR}/_build_network")
 
 foreach(dir IN LISTS SUB_DIRS)
-    execute_process(COMMAND cp -f ${BUILD_SRC}/CMakeLists.txt ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/CMakeLists.txt)
-    add_subdirectory(${dir})
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/net.so")
+        # Preserve externally compiled models and their runtime ABI.
+        file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${dir}")
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/net.so"
+            "${CMAKE_CURRENT_BINARY_DIR}/${dir}/net.so"
+            COPYONLY
+        )
+        install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${dir}/net.so"
+            DESTINATION "/usr/share/${dir}")
+    else()
+        execute_process(COMMAND cp -f ${BUILD_SRC}/CMakeLists.txt ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/CMakeLists.txt)
+        add_subdirectory(${dir})
+    endif()
 endforeach()

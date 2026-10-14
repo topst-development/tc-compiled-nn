@@ -11,6 +11,16 @@ extern enlight_objs_t gdb_fw_objects;
 #endif
 
 #ifdef DUMP
+/**
+ * @brief Debug function to dump regression result data for YOLO.
+ * 
+ * @param obj Object tensor data.
+ * @param conf Confidence tensor array.
+ * @param output_idx Output tensor index.
+ * @param num_box Number of boxes.
+ * @param sigmoid_applied Sigmoid applied flag.
+ * @param num_class Number of classes.
+ */
 static void debug_regression_results(tensor_t* obj, tensor_t* conf[],
                                      int output_idx, int num_box,
                                      int sigmoid_applied, int num_class)
@@ -51,6 +61,14 @@ static void debug_regression_results(tensor_t* obj, tensor_t* conf[],
     //enlight_detector_dbg_fout();
 }
 
+/**
+ * @brief Debug function to dump regression object results.
+ * 
+ * @param conf Confidence tensor array.
+ * @param output_idx Output tensor index.
+ * @param num_class Number of classes.
+ * @param num_box Number of boxes.
+ */
 static void debug_regression_obj_results(tensor_t* conf[], int output_idx, int num_class,
                                          int num_box)
 {
@@ -62,6 +80,12 @@ static void debug_regression_obj_results(tensor_t* conf[], int output_idx, int n
     enlight_dump_data_to_bin(dump_name, conf[i]->buf, 4, num_e);
 }
 
+/**
+ * @brief Debug function to dump NMS input data for specific class.
+ * 
+ * @param cand Candidate structure.
+ * @param c Class index.
+ */
 static void debug_nms_input(cand_f_t* cand, int c)
 {
     //enlight_detector_dbg_fin();
@@ -86,6 +110,12 @@ static void debug_nms_input(cand_f_t* cand, int c)
     //enlight_detector_dbg_fout();
 }
 
+/**
+ * @brief Debug function to dump detection results.
+ * 
+ * @param r1 Detection result structure.
+ * @param nms_method NMS method type.
+ */
 static void debug_detection_results(detection_f_t* r1, enlight_nms_t nms_method)
 {
     //enlight_detector_dbg_fin();
@@ -161,6 +191,11 @@ static void debug_detection_results(detection_f_t* r1, enlight_nms_t nms_method)
     //enlight_detector_dbg_fout();
 }
 
+/**
+ * @brief Debug function to dump FastNMS input data.
+ * 
+ * @param cand Candidate structure.
+ */
 static void debug_fastnms_inputs(cand_f_t* cand)
 {
     //enlight_detector_dbg_fin();
@@ -197,6 +232,13 @@ static void debug_fastnms_inputs(cand_f_t* cand)
     //enlight_detector_dbg_fout();
 }
 
+/**
+ * @brief Debug function to dump DFL output data.
+ * 
+ * @param i Output index.
+ * @param smax_tensor Softmax tensor.
+ * @param conv_tensor Convolution tensor.
+ */
 static void debug_dfl_outputs(int i, tensor_t* smax_tensor, tensor_t* conv_tensor)
 {
     tensor_t* target = &smax_tensor[i];
@@ -212,6 +254,16 @@ static void debug_dfl_outputs(int i, tensor_t* smax_tensor, tensor_t* conv_tenso
 }
 #endif
 
+/**
+ * @brief Build bounding box information for YOLO detection.
+ * 
+ * @param box Output bounding box structure.
+ * @param loc Location tensor data.
+ * @param prior Prior anchor box data.
+ * @param idx Index of the box to process.
+ * @param num_grid Grid dimensions.
+ * @param sigmoid_applied Sigmoid applied flag.
+ */
 static void build_box_info(
     box_f_t*    box,
     tensor_t*   loc,
@@ -271,6 +323,15 @@ static void build_box_info(
     //enlight_detector_dbg_fout();
 }
 
+/**
+ * @brief Build bounding box information for YOLOv5.
+ * 
+ * @param box Output bounding box structure.
+ * @param loc Location tensor data.
+ * @param prior Prior anchor box data.
+ * @param idx Index of the box to process.
+ * @param num_grid Grid dimensions.
+ */
 static void build_box_info_v5(
     box_f_t*    box,
     tensor_t*   loc,
@@ -328,6 +389,16 @@ static void build_box_info_v5(
     //enlight_detector_dbg_fout();
 }
 
+/**
+ * @brief Build bounding box information for YOLOv6.
+ * 
+ * @param box Output bounding box structure.
+ * @param loc Location tensor data.
+ * @param prior Prior anchor box data.
+ * @param idx Index of the box to process.
+ * @param num_grid Grid dimensions.
+ * @param dfl_applied DFL applied flag.
+ */
 static void build_box_info_v6(
     box_f_t*    box,
     tensor_t*   loc,
@@ -387,6 +458,15 @@ static void build_box_info_v6(
     //enlight_detector_dbg_fout();
 }
 
+/**
+ * @brief Build bounding box information for YOLOX.
+ * 
+ * @param box Output bounding box structure.
+ * @param loc Location tensor data.
+ * @param prior Prior anchor box data.
+ * @param idx Index of the box to process.
+ * @param num_grid Grid dimensions.
+ */
 static void build_box_info_x(
     box_f_t*    box,
     tensor_t*   loc,
@@ -431,10 +511,24 @@ static void build_box_info_x(
     //enlight_detector_dbg_fout();
 }
 
-
-
-// input: { batch, boxes, clses }
-// output: { boxes { coordinate, score } }
+/**
+ * @brief Apply thresholding for specific class in YOLO.
+ *
+ * input: { batch, boxes, clses }
+ * output: { boxes { coordinate, score } }
+ * 
+ * @param score Score tensor array.
+ * @param cand Output candidate structure.
+ * @param loc Location tensor data.
+ * @param prior Prior anchor box data.
+ * @param cls Target class index.
+ * @param th Confidence threshold.
+ * @param num_grids Grid dimensions array.
+ * @param num_output Number of outputs.
+ * @param sigmoid_applied Sigmoid applied flag.
+ * @param yolo_version YOLO version.
+ * @param dfl_applied DFL applied flag.
+ */
 static void thresholding(tensor_t** score, cand_f_t* cand,
                          tensor_t* loc, tensor_t* prior,
                          int cls, float th, int* num_grids, int num_output,
@@ -479,7 +573,20 @@ static void thresholding(tensor_t** score, cand_f_t* cand,
     //enlight_detector_dbg_fout();
 }
 
-
+/**
+ * @brief Apply thresholding by default box method in YOLO.
+ * 
+ * @param score Score tensor array.
+ * @param cand Output candidate structure.
+ * @param loc Location tensor data.
+ * @param prior Prior anchor box data.
+ * @param th Confidence threshold.
+ * @param num_grids Grid dimensions array.
+ * @param num_output Number of outputs.
+ * @param sigmoid_applied Sigmoid applied flag.
+ * @param yolo_version YOLO version.
+ * @param dfl_applied DFL applied flag.
+ */
 static void thresholding_by_default_box(tensor_t** score, cand_f_t* cand,
                                         tensor_t* loc, tensor_t* prior,
                                         float th, int *num_grids, int num_output,
@@ -526,8 +633,24 @@ static void thresholding_by_default_box(tensor_t** score, cand_f_t* cand,
     cand->n = n;
 }
 
-
-
+/**
+ * @brief YOLO post-processing pipeline for object detection.
+ * 
+ * @param score Score tensor data.
+ * @param loc Location tensor data.
+ * @param pri Prior anchor box data.
+ * @param obj Object tensor data.
+ * @param th_conf Confidence threshold.
+ * @param th_nms NMS threshold.
+ * @param num_grids Grid dimensions array.
+ * @param num_output Number of outputs.
+ * @param softmax_use Softmax usage flag.
+ * @param sigmoid_applied Sigmoid applied flag.
+ * @param yolo_version YOLO version.
+ * @param nms_method NMS method type.
+ * @param dfl_applied DFL applied flag.
+ * @return Pointer to detection results.
+ */
 static detection_f_t* yolo_post_process(
     tensor_t*   score,
     tensor_t*   loc,
@@ -658,6 +781,25 @@ static detection_f_t* yolo_post_process(
     return detection;
 }
 
+/**
+ * @brief Get candidate boxes from YOLO output tensors.
+ * 
+ * @param loc_outputs Location output tensors.
+ * @param conf_outputs Confidence output tensors.
+ * @param obj_outputs Object output tensors.
+ * @param cand_bufs Candidate buffer arrays.
+ * @param cand_nums Candidate counts.
+ * @param sig_tbls Sigmoid lookup tables.
+ * @param num_output Number of outputs.
+ * @param num_grids Grid dimensions.
+ * @param num_anchor Number of anchors.
+ * @param num_class Number of classes.
+ * @param th_conf Confidence threshold.
+ * @param out_tensor_divided Tensor division flag.
+ * @param sigmoid_applied Sigmoid applied flag.
+ * @param len_obj Object length.
+ * @param len_loc Location length.
+ */
 static void get_candidate(
     enlight_act_tensor_t**  loc_outputs, /* loc_outputs if loc and conf tensor buffer
                                             if out_tensor_divided is = 0*/
@@ -711,11 +853,22 @@ static void get_candidate(
         else
             _output = loc_outputs[conf_output_idx];
 
+        if (_output->output == 0) {
+            enlight_network_err("enlight act data format not supported\n");
+        }
+
+        int8_t* output_base = (int8_t*)(&_output->base[_output->buf]);
+        int* output_dims = _output->dimensions;
+        int output_c = (output_dims[1] + (32 - 1)) & 0xFFE0;
+        int output_w = output_dims[3];
+
         grid_h = num_grids[2 * output_idx];
         grid_w = num_grids[(2 * output_idx) + 1];
 
         for (gi = 0; gi < grid_h; gi++) {
             for (gj = 0; gj < grid_w; gj++) {
+                int cand_pos = num_anchor * ((grid_w * gi) + gj);
+                
                 for (k = 0; k < num_anchor; k++) {
                     float obj;
                     int x_off = gj;
@@ -729,51 +882,67 @@ static void get_candidate(
                         c_off = (box_data_len * k) + len_loc;
 
                     if (len_obj) {
-                        src = enlight_get_tensor_qdata_by_off(_output, y_off, x_off, c_off);
+                        int8_t* output_buf = output_base + c_off + (output_c * x_off) + (output_c * output_w * y_off); 
+                        src = *output_buf;
+                        //src = enlight_get_tensor_qdata_by_off(_output, y_off, x_off, c_off);
 
                         if (sigmoid_applied)
                             obj = (float)src / ENLIGHT_NPU_SIG_OUT_SCL;
                         else
                             obj = sig_tbl[src];
 
-                        if (obj >= th_conf){
-                            //enlight_detector_dbg("[output_idx:%d] grid_x:%d, grid_y:%d, grid_c: %d\n", output_idx, x_off, y_off, c_off);
-                            //enlight_detector_dbg("[output_idx:%d] box-idx: %d\n", output_idx, (gi * grid_w + gj) * num_anchor + k);
-                            //enlight_detector_dbg("obj %f\n", obj);
-
-                            cand_buf[cand_cnt++] = num_anchor * ((grid_w * gi) + gj) + k;
+                        if (obj >= th_conf) {
+                            cand_buf[cand_cnt++] = cand_pos + k;
                         }
                     }
                     else { //objectness not included
                         int i;
+                        int8_t* output_buf = output_base + c_off + (output_c * x_off) + (output_c * output_w * y_off); 
                         for (i = 0; i < num_class; i++) {
-                            src = enlight_get_tensor_qdata_by_off(_output, y_off, x_off, c_off + i);
+                            src = output_buf[i];
+                            //src = enlight_get_tensor_qdata_by_off(_output, y_off, x_off, c_off + i);
 
                             if (sigmoid_applied)
                                 obj = (float)src / ENLIGHT_NPU_SIG_OUT_SCL;
                             else
                                 obj = *((float*)&sig_tbl[src]);
 
-                            if (obj >= th_conf){
-                                //enlight_detector_dbg("[output_idx:%d] grid_y:%d, grid_x:%d, grid_c: %d\n", output_idx, y_off, x_off, c_off);
-                                //enlight_detector_dbg("[output_idx:%d] box-idx: %d\n", output_idx, gi * grid_w + num_anchor * gj + k);
-                                //enlight_detector_dbg("obj %f\n", obj);
-
-                                cand_buf[cand_cnt++] = num_anchor * ((grid_w * gi) + gj) + k;
+                            if (obj >= th_conf) {
+                                cand_buf[cand_cnt++] = cand_pos + k;
                                 break;
                             }
-
                         }
                     }
                 }
             }
         }
+
         cand_nums[output_idx] = cand_cnt;
     }
 
     //enlight_detector_dbg_fout();
 }
 
+/**
+ * @brief Decompose YOLO output tensors into location, confidence, and prior data.
+ * 
+ * @param loc_outputs Location output tensors.
+ * @param conf_outputs Confidence output tensors.
+ * @param obj_outputs Object output tensors.
+ * @param def_box_addr Default box addresses.
+ * @param num_anchor Number of anchors.
+ * @param num_class Number of classes.
+ * @param num_output Number of outputs.
+ * @param num_grids Grid dimensions.
+ * @param cand_buf_addr Candidate buffer addresses.
+ * @param cand_nums Candidate counts.
+ * @param out_tensor_divided Tensor division flag.
+ * @param loc Location tensors.
+ * @param conf Confidence tensors.
+ * @param prior Prior tensors.
+ * @param obj Object tensors.
+ * @param dfl_reg_max DFL regression maximum.
+ */
 static void decompose_output(
     enlight_act_tensor_t**  loc_outputs,
     enlight_act_tensor_t**  conf_outputs,
@@ -870,7 +1039,7 @@ static void decompose_output(
     }
 
 
-    for(i = 0 ; i < num_output; i++) {
+    for(i = 0; i < num_output; i++) {
 
         int8_t* coor_dst = loc_temp[i].buf;
         int8_t* obj_dst = obj[i].buf;
@@ -911,12 +1080,7 @@ static void decompose_output(
                 int x_off = grid_idx % num_grids[2 * i + 1];
                 int c_off = loc_box_len * box_idx + k;
 
-                int8_t val = enlight_get_tensor_qdata_by_off(loc_output,
-                                y_off, x_off, c_off);
-
-                //enlight_detector_dbg("[output_idx:%d] box-idx: %d\n", i, cand_buf[j]);
-                //enlight_detector_dbg("[output_idx:%d] grid_y:%d, grid_x:%d, grid_c: %d\n", i, y_off, x_off, c_off);
-                //enlight_detector_dbg("val %d\n", val);
+                int8_t val = enlight_get_tensor_qdata_by_off(loc_output, y_off, x_off, c_off);
 
                 *coor_dst++ = val;
             }
@@ -929,13 +1093,9 @@ static void decompose_output(
                 if (out_tensor_divided >= 1)
                     c_off = obj_box_len * box_idx + k;
 
-                int val = enlight_get_tensor_qdata_by_off(obj_output,
-                                y_off, x_off, c_off);
+                int val = enlight_get_tensor_qdata_by_off(obj_output, y_off, x_off, c_off);
 
                 *obj_dst++ = val;
-
-                //enlight_detector_dbg("[output_idx:%d] grid_y:%d, grid_x:%d, grid_c: %d\n", i, y_off, x_off, c_off);
-                //enlight_detector_dbg("val %d\n", val);
             }
 
             //cls confidence
@@ -948,11 +1108,7 @@ static void decompose_output(
                 else if (out_tensor_divided == 2)
                     c_off = conf_box_len * box_idx + k;
 
-                int8_t val = enlight_get_tensor_qdata_by_off(conf_output,
-                                y_off, x_off, c_off);
-
-                //enlight_detector_dbg("[output_idx:%d] grid_y:%d, grid_x:%d, grid_c: %d\n", i, y_off, x_off, c_off);
-                //enlight_detector_dbg("val %d\n", val);
+                int8_t val = enlight_get_tensor_qdata_by_off(conf_output, y_off, x_off, c_off);
 
                 *conf_dst++ = val;
             }
@@ -964,7 +1120,7 @@ static void decompose_output(
     if (dfl_reg_max) {
         float *coord_src = NULL;
         float *coord_dst = NULL;
-        for(i = 0 ; i < num_output; i++) {
+        for(i = 0; i < num_output; i++) {
             // apply softmax
             if (!loc_temp[i].num_ele)
                 continue;
@@ -997,32 +1153,59 @@ static void decompose_output(
     //enlight_detector_dbg_fout();
 }
 
+/**
+ * @brief YOLO detector wrapper function for float precision.
+ * 
+ * @param softmax_use Softmax usage flag(for yolov2).
+ * @param sigmoid_applied Sigmoid applied flag.
+ * @param num_loc Number of location tensors.
+ * @param num_conf Number of confidence tensors.
+ * @param num_obj Number of object tensors.
+ * @param loc_outputs Location output tensors.
+ * @param conf_outputs Confidence output tensors.
+ * @param obj_outputs Object output tensors.
+ * @param def_box_addr Default box addresses.
+ * @param exp_tbl_base Exponential lookup tables.
+ * @param sig_tbl_base Sigmoid lookup tables.
+ * @param num_class Number of classes.
+ * @param num_grids Grid dimensions.
+ * @param num_anchor Number of anchors per a grid.
+ * @param img_sizes Input image dimensions(C, H, W).
+ * @param th_conf Confidence threshold.
+ * @param th_iou IOU threshold.
+ * @param detected_objs Output detected objects.
+ * @param yolo_version YOLO version.
+ * @param max_detection Maximum detections.
+ * @param nms_method NMS method type.
+ * @param dfl_reg_max DFL regression maximum.
+ * @return Status code (0 for success).
+ */
 static int detect_object_float(
-    int             softmax_use,        /**< softmax in yolo2                   */
-    int             sigmoid_applied,    /**< sigmoid applied to outputs         */
-    int             num_loc,            /**< output loc tensor number           */
-    int             num_conf,           /**< output conf tensor number          */
-    int             num_obj,            /**< output obj tensor number           */
+    int             softmax_use,
+    int             sigmoid_applied,
+    int             num_loc,
+    int             num_conf,
+    int             num_obj,
     enlight_act_tensor_t**
-                    loc_outputs,        /**< output loc tensor number           */
+                    loc_outputs,
     enlight_act_tensor_t**
-                    conf_outputs,       /**< output conf tensor number          */
+                    conf_outputs,
     enlight_act_tensor_t**
-                    obj_outputs,        /**< output obj tensor number           */
-    float*          def_box_addr,       /**< default box base addresses         */
-    float*          exp_tbl_base,       /**< output exp(x) tables               */
-    float*          sig_tbl_base,       /**< output sigmoid(x) tables           */
-    int             num_class,          /**< cls num                            */
-    int*            num_grids,          /**< grids                              */
-    int             num_anchor,         /**< anchor num, #box per a grid        */
-    int*            img_sizes,          /**< input image C, H, W                */
-    float           th_conf,            /**< confidence threshold               */
-    float           th_iou,             /**< IOU threshold                      */
-    enlight_objs_t* detected_objs,      /**< return objects buf base            */
-    int             yolo_version,       /**< YOLO version                       */
-    int             max_detection,      /**< max detection results              */
-    enlight_nms_t   nms_method,         /**< nms method  type                   */
-    int             dfl_reg_max         /**< max number of dfl regression       */
+                    obj_outputs,
+    float*          def_box_addr,
+    float*          exp_tbl_base,
+    float*          sig_tbl_base,
+    int             num_class,
+    int*            num_grids,
+    int             num_anchor,
+    int*            img_sizes,
+    float           th_conf,
+    float           th_iou,
+    enlight_objs_t* detected_objs,
+    int             yolo_version,
+    int             max_detection,
+    enlight_nms_t   nms_method,
+    int             dfl_reg_max
     )
 {
     //enlight_detector_dbg_fin();
@@ -1059,6 +1242,14 @@ static int detect_object_float(
 
     int out_tensor_divided;
     int num_output = num_loc;
+
+#ifdef POST_PROCESS_REPORT_CYCLE
+#ifdef __i386__
+    asm volatile ("rdtsc" : "=a"(cycle0), "=d"(cycle0_h));
+#else
+    asm volatile ("rdcycle %0" : "=r" (cycle0));
+#endif
+#endif //POST_PROCESS_REPORT_CYCLE
 
     if (yolo_version == 6 || yolo_version == 8)
         src_obj_len = 0;
@@ -1229,13 +1420,6 @@ static int detect_object_float(
 
     enlight_free(cand_buf);
 
-#ifdef POST_PROCESS_REPORT_CYCLE
-#ifdef __i386__
-    asm volatile ("rdtsc" : "=a"(cycle0), "=d"(cycle0_h));
-#else
-    asm volatile ("rdcycle %0" : "=r" (cycle0));
-#endif
-#endif //POST_PROCESS_REPORT_CYCLE
 
     int dfl_applied = dfl_reg_max ? 1 : 0;
     detection_f_t* r1 = yolo_post_process(scr, loc, pri, obj,
@@ -1251,10 +1435,10 @@ static int detect_object_float(
 #else
     asm volatile ("rdcycle %0" : "=r" (cycle1));
 #endif
-    enlight_detector_log("[Postproc cycles] %ld \n", cycle1 - cycle0);
+    enlight_detector_log("[Postproc cycles] %ld: %ld ~ %ld \n", cycle1 - cycle0, cycle0, cycle1);
 #endif //POST_PROCESS_REPORT_CYCLE
 
-    // enlight_detector_log("%d object is detected\n", r1->n);
+    enlight_detector_dbg("%d object is detected\n", r1->n);
 
 
 #ifdef DUMP
@@ -1265,8 +1449,7 @@ static int detect_object_float(
         r1->n = max_detection;
 
     if (r1->n > MAX_DETECT_BOX) {
-        enlight_detector_log("detection result %d is limited to MAX VALUE: %d\n",
-                             r1->n, MAX_DETECT_BOX); 
+        
         r1->n = MAX_DETECT_BOX;
     }
 
@@ -1275,13 +1458,7 @@ static int detect_object_float(
     for (i = 0; i < r1->n; i++) {
         box_f_t* b = r1->box + i;
 
-        enlight_detector_dbg("x_min: %f, x_max: %f, y_min: %f, y_max: %f, score: %f, cls: %d\n",
-                (img_sizes[2]*b->x_min),
-                (img_sizes[2]*b->x_max),
-                (img_sizes[1]*b->y_min),
-                (img_sizes[1]*b->y_max),
-                r1->score[i],
-                r1->cls[i]);
+        
 
 #ifdef GDB_FW_DEBUG
         enlight_obj_t *dbg_obj = &gdb_fw_objects.obj[i];
@@ -1316,7 +1493,9 @@ static int detect_object_float(
     return 0;
 }
 
-
+/**
+ * @brief Initialize YOLO detector.
+ */
 void yolo_init()
 {
     //enlight_detector_dbg_fin();
@@ -1329,33 +1508,59 @@ void yolo_init()
     //enlight_detector_dbg_fout();
 }
 
-
+/**
+ * @brief YOLO detector wrapper function for object detection.
+ *
+ * @param softmax_use Softmax usage flag(for yolov2).
+ * @param sigmoid_applied Sigmoid applied flag.
+ * @param num_loc Number of location tensors.
+ * @param num_conf Number of confidence tensors.
+ * @param num_obj Number of object tensors.
+ * @param loc_outputs Location output tensors.
+ * @param conf_outputs Confidence output tensors.
+ * @param obj_outputs Object output tensors.
+ * @param def_box_addr Default box addresses.
+ * @param exp_tbl_base Exponential lookup tables.
+ * @param sig_tbl_base Sigmoid lookup tables.
+ * @param num_class Number of classes.
+ * @param num_grids Grid dimensions.
+ * @param num_anchor Number of anchors per a grid.
+ * @param img_sizes Input image dimensions(C, H, W).
+ * @param th_conf Confidence threshold.
+ * @param th_iou IOU threshold.
+ * @param detected_objs Output detected objects.
+ * @param yolo_version YOLO version.
+ * @param max_detection Maximum detections.
+ * @param nms_method NMS method type.
+ * @param dfl_reg_max DFL regression maximum.
+ * @return Status code (0 for success).
+ */
 int yolo_detect_object(
-    int             softmax_use,        /**< softmax in yolo2                   */
-    int             sigmoid_applied,    /**< sigmoid applied to outputs         */
-    int             num_loc,            /**< output loc tensor number           */
-    int             num_conf,           /**< output conf tensor number          */
-    int             num_obj,            /**< output conf tensor number           */
+    int             softmax_use,
+    int             sigmoid_applied,
+    int             num_loc,
+    int             num_conf,
+    int             num_obj,
     enlight_act_tensor_t**
-                    loc_outputs,        /**< output loc tensor number           */
+                    loc_outputs,
     enlight_act_tensor_t**
-                    conf_outputs,       /**< output conf tensor number          */
+                    conf_outputs,
     enlight_act_tensor_t**
-                    obj_outputs,        /**< output conf tensor number           */
-    float*          def_box_addr,       /**< default box base addresses         */
-    float*          exp_tbl_base,       /**< output exp(x) tables               */
-    float*          sig_tbl_base,       /**< output sigmoid(x) tables           */
-    int             num_class,          /**< cls num                            */
-    int*            num_grids,          /**< grids                              */
-    int             num_anchor,         /**< anchor num, #box per a grid        */
-    int*            img_sizes,          /**< input image C, H, W                */
-    float           th_conf,            /**< confidence threshold               */
-    float           th_iou,             /**< IOU threshold                      */
-    enlight_objs_t* detected_objs,      /**< return objects buf base            */
-    int             yolo_version,       /**< YOLO version                       */
-    int             max_detection,      /**< max detection results              */
-    enlight_nms_t   nms_method,         /**< nms method  type                   */
-    int             dfl_reg_max         /**< max number of dfl regression       */
+                    obj_outputs,
+    float*          def_box_addr,
+    float*          exp_tbl_base,
+    float*          sig_tbl_base,
+    int             num_class,
+    int*            num_grids,
+    int             num_anchor,
+    int*            img_sizes,
+    float           th_conf,
+    float           th_iou,
+    enlight_objs_t* detected_objs,
+    int             yolo_version,
+    int             max_detection,
+    enlight_nms_t   nms_method,
+    int             dfl_reg_max
     )
 {
     //enlight_detector_dbg_fin();

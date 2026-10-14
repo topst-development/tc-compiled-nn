@@ -16,9 +16,14 @@ enlight_postproc_t enlight_get_post_type(enlight_network_t *inst)
     return inst->post_proc;
 }
 
-int* enlight_get_img_sizes(enlight_network_t *inst)
+int enlight_get_num_inputs(enlight_network_t *inst)
 {
-    return inst->img_sizes;
+    return inst->input_tensor_num;
+}
+
+int* enlight_get_img_sizes(enlight_network_t *inst, int idx)
+{
+    return inst->img_sizes[idx];
 }
 
 long long enlight_get_conv_mac_num(enlight_network_t *inst)

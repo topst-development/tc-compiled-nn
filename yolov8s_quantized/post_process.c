@@ -167,18 +167,18 @@ int run_post_process(
         dfl_reg_max
     );
 
-    for (i = 0; i < objs_buf_base->cnt; i++) {
-        enlight_obj_t *obj = &objs_buf_base->obj[i];
+    //for (i = 0; i < objs_buf_base->cnt; i++) {
+    //    enlight_obj_t *obj = &objs_buf_base->obj[i];
 
-        // post_process_log(
-        //     "x1 y1 x2 y2 = %8.4f %8.4f %8.4f %8.4f class: %4d score: %8.4f\n",
-        //     obj->x_min,
-        //     obj->y_min,
-        //     obj->x_max,
-        //     obj->y_max,
-        //     obj->cls,
-        //     obj->score * 100.);
-    }
+	//post_process_log(
+        //    "x1 y1 x2 y2 = %8.4f %8.4f %8.4f %8.4f class: %4d score: %8.4f\n",
+        //    obj->x_min,
+        //    obj->y_min,
+        //    obj->x_max,
+        //    obj->y_max,
+        //   obj->cls,
+        //    obj->score * 100.);
+    //}
 
     if (detected_objects != 0) {
         detected_objects->cnt = objs_buf_base->cnt;

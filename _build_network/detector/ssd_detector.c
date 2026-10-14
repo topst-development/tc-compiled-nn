@@ -11,6 +11,15 @@ enlight_objs_t gdb_fw_objects;
 #endif
 
 #ifdef DUMP
+/**
+ * @brief Debug function to dump regression result data.
+ * 
+ * @param num_cand_box Number of candidate boxes.
+ * @param num_class Number of classes.
+ * @param cand_conf Candidate confidence tensor.
+ * @param bg_in_cls Background in class flag.
+ * @param th_conf Confidence threshold.
+ */
 static void debug_regression_result(int num_cand_box, int num_class,
                                     tensor_t* cand_conf, int bg_in_cls,
                                     float th_conf)
@@ -41,7 +50,12 @@ static void debug_regression_result(int num_cand_box, int num_class,
     enlight_dump_data_to_bin(dump_name, d_arr, 4, num_e);
 }
 
-
+/**
+ * @brief Debug function to dump NMS input data for specific class.
+ * 
+ * @param cand Candidate structure.
+ * @param cls Class index.
+ */
 static void debug_nms_input(cand_f_t* cand, int cls)
 {
     int i;
@@ -64,6 +78,11 @@ static void debug_nms_input(cand_f_t* cand, int cls)
     }
 }
 
+/**
+ * @brief Debug function to dump FastNMS input data.
+ * 
+ * @param cand Candidate structure.
+ */
 static void debug_fastnms_inputs(cand_f_t* cand)
 {
     int i;
@@ -99,6 +118,12 @@ static void debug_fastnms_inputs(cand_f_t* cand)
 
 }
 
+/**
+ * @brief Debug function to dump detection results.
+ * 
+ * @param r1 Detection result structure.
+ * @param nms_method NMS method type.
+ */
 static void debug_detection_results(detection_f_t* r1, enlight_nms_t nms_method)
 {
     int num_obj = r1->n;
@@ -172,6 +197,14 @@ static void debug_detection_results(detection_f_t* r1, enlight_nms_t nms_method)
 
 #endif
 
+/**
+ * @brief Build bounding box information from location and prior tensors.
+ * 
+ * @param box Output bounding box structure.
+ * @param loc Location tensor data.
+ * @param prior Prior anchor box data.
+ * @param idx Index of the box to process.
+ */
 static void build_box_info(box_f_t* box, tensor_t* loc, tensor_t* prior, int idx)
 {
     //enlight_detector_dbg_fin();
@@ -225,6 +258,18 @@ static void build_box_info(box_f_t* box, tensor_t* loc, tensor_t* prior, int idx
     //enlight_detector_dbg_fout();
 }
 
+/**
+ * @brief Apply thresholding to select best boxes by default method.
+ * 
+ * @param scr Score tensor data.
+ * @param cand Output candidate structure.
+ * @param loc Location tensor data.
+ * @param prior Prior anchor box data.
+ * @param cand_box Candidate box indices.
+ * @param num_cand_box Number of candidate boxes.
+ * @param th Confidence threshold.
+ * @param has_bg Background class flag.
+ */
 static void thresholding_by_default_box(tensor_t* scr, cand_f_t* cand,
                                         tensor_t* loc, tensor_t* prior,
                                         int *cand_box, int num_cand_box,
@@ -259,7 +304,18 @@ static void thresholding_by_default_box(tensor_t* scr, cand_f_t* cand,
     cand->n = n;
 }
 
-
+/**
+ * @brief Apply thresholding with specific candidate class.
+ * 
+ * @param score Score tensor data.
+ * @param cand Output candidate structure.
+ * @param loc Location tensor data.
+ * @param prior Prior anchor box data.
+ * @param cand_box Candidate box indices.
+ * @param num_cand_box Number of candidate boxes.
+ * @param cls Target class index.
+ * @param threshold Confidence threshold.
+ */
 static void thresholding_with_candidate(
     tensor_t* score,
     cand_f_t* cand,
@@ -295,6 +351,20 @@ static void thresholding_with_candidate(
     //enlight_detector_dbg_fout();
 }
 
+/**
+ * @brief SSD post-processing pipeline for object detection.
+ * 
+ * @param score Score tensor data.
+ * @param loc Location tensor data.
+ * @param pri Prior anchor box data.
+ * @param th_conf Confidence threshold.
+ * @param th_nms NMS threshold.
+ * @param word_size Word alignment size.
+ * @param bg_in_cls Background in class flag.
+ * @param logistic Logistic function type.
+ * @param nms_method NMS method type.
+ * @return Pointer to detection results.
+ */
 detection_f_t* ssd_post_process(tensor_t* score, tensor_t* loc, tensor_t* pri,
                               float th_conf, float th_nms, const int word_size,
                               int bg_in_cls, enlight_logistic_t logistic,
@@ -384,28 +454,46 @@ detection_f_t* ssd_post_process(tensor_t* score, tensor_t* loc, tensor_t* pri,
     return detection;
 }
 
-
-
-/** @brief SSD detector wrapper function
+/**
+ * @brief SSD detector wrapper function for float precision.
+ * 
+ * @param num_loc Output loc tensor number.
+ * @param num_conf Output conf tensor number.
+ * @param loc_tensors Loc output tensors.
+ * @param conf_tensors Conf output tensors.
+ * @param default_box_addrs Default box base addresses.
+ * @param loc_exp_tables Loc output exp(x) tables.
+ * @param con_logistic_tables Conf output logistic tables.
+ * @param num_class Number of classes.
+ * @param num_box Number of boxes.
+ * @param img_sizes Input image H, W.
+ * @param th_conf Confidence threshold.
+ * @param th_iou IOU threshold.
+ * @param bg_in_cls Background in class flag.
+ * @param logistic Logistic type.
+ * @param nms_method NMS method type.
+ * @param detected_objs Return objects buffer base.
+ * @param max_detection Max detection results.
+ * @return Status code (0 for success).
  */
 static int detect_object_float(
-    int           num_loc,                  /**< output loc tensor number    */
-    int           num_conf,                 /**< output conf tensor number   */
-    enlight_act_tensor_t** loc_tensors,     /**< loc output tensors          */
-    enlight_act_tensor_t** conf_tensors,    /**< conf output tnesors         */
-    float*        default_box_addrs,        /**< default box base addresses  */
-    float*        loc_exp_tables,           /**< loc output exp(x) tables    */
-    float*        con_logistic_tables,      /**< conf output logistic tables */
-    int           num_class,                  /**< number of cls               */
-    int           num_box,                  /**< number of box               */
-    int*          img_sizes,                /**< input image H, W            */
-    float         th_conf,                  /**< confidence threshold        */
-    float         th_iou,                   /**< IOU threshold               */
-    int           bg_in_cls,                /**< background in class         */
-    enlight_logistic_t    logistic,         /**< logstic type                */
-    enlight_nms_t         nms_method,       /**< nms method  type            */
-    enlight_objs_t*       detected_objs,    /**< return objects buf base     */
-    int           max_detection             /**< max detection results       */
+    int                    num_loc,
+    int                    num_conf,
+    enlight_act_tensor_t** loc_tensors,
+    enlight_act_tensor_t** conf_tensors,
+    float*                 default_box_addrs,
+    float*                 loc_exp_tables,
+    float*                 con_logistic_tables,
+    int                    num_class,
+    int                    num_box,
+    int*                   img_sizes,
+    float                  th_conf,
+    float                  th_iou,
+    int                    bg_in_cls,
+    enlight_logistic_t     logistic,
+    enlight_nms_t          nms_method,
+    enlight_objs_t*        detected_objs,
+    int                    max_detection
 )
 {
     //enlight_detector_dbg_fin();
@@ -482,7 +570,7 @@ static int detect_object_float(
     enlight_detector_log("[Postproc cycles] %ld \n", cycle1 - cycle0);
 #endif //POST_PROCESS_REPORT_CYCLE
 
-    // enlight_detector_log("%d object is detected\n", r1->n);
+    enlight_detector_dbg("%d object is detected\n", r1->n);
 
     detected_objs->cnt = r1->n;
 
@@ -542,7 +630,9 @@ static int detect_object_float(
     return 0;
 }
 
-
+/**
+ * @brief Initialize SSD detector.
+ */
 void ssd_init()
 {
 #ifdef BARE_METAL_FW_DEV
@@ -551,27 +641,46 @@ void ssd_init()
 #endif
 }
 
-
-/** @brief SSD detector wrapper function
+/**
+ * @brief SSD detector wrapper function for object detection.
+ *
+ * @param num_loc Output loc tensor number.
+ * @param num_conf Output conf tensor number.
+ * @param loc_tensors Loc output tensors.
+ * @param conf_tensors Conf output tensors.
+ * @param default_box_addrs Default box base addresses.
+ * @param loc_exp_tables Loc output exp(x) tables.
+ * @param con_logistic_tables Conf output logistic tables.
+ * @param num_class Number of classes.
+ * @param num_box Number of boxes.
+ * @param img_sizes Input image H, W.
+ * @param th_conf Confidence threshold.
+ * @param th_iou IOU threshold.
+ * @param bg_in_cls Background in class flag.
+ * @param logistic Logistic type.
+ * @param nms_method NMS method type.
+ * @param detected_objs Return objects buffer base.
+ * @param max_detection Max detection results.
+ * @return Status code (0 for success).
  */
 int ssd_detect_object(
-    int                    num_loc,                  /**< output loc tensor number    */
-    int                    num_conf,                 /**< output conf tensor number   */
-    enlight_act_tensor_t** loc_tensors,     /**< loc output tensors          */
-    enlight_act_tensor_t** conf_tensors,    /**< conf output tnesors         */
-    float*                 default_box_addrs,        /**< default box base addresses  */
-    float*                 loc_exp_tables,           /**< loc output exp(x) tables    */
-    float*                 con_logistic_tables,      /**< conf output logistic tables */
-    int                    num_class,                  /**< number of cls               */
-    int                    num_box,                  /**< number of box               */
-    int*                   img_sizes,                /**< input image H, W            */
-    float                  th_conf,                  /**< confidence threshold        */
-    float                  th_iou,                   /**< IOU threshold               */
-    int                    bg_in_cls,                /**< background in class         */
-    enlight_logistic_t    logistic,         /**< logstic type                */
-    enlight_nms_t         nms_method,       /**< nms method  type            */
-    enlight_objs_t*       detected_objs,    /**< return objects buf base     */
-    int           max_detection             /**< max detection results       */
+    int                    num_loc,
+    int                    num_conf,
+    enlight_act_tensor_t** loc_tensors,
+    enlight_act_tensor_t** conf_tensors,
+    float*                 default_box_addrs,
+    float*                 loc_exp_tables,
+    float*                 con_logistic_tables,
+    int                    num_class,
+    int                    num_box,
+    int*                   img_sizes,
+    float                  th_conf,
+    float                  th_iou,
+    int                    bg_in_cls,
+    enlight_logistic_t     logistic,
+    enlight_nms_t          nms_method,
+    enlight_objs_t*        detected_objs,
+    int                    max_detection
 )
 {
 

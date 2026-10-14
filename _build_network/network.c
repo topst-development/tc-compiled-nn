@@ -49,7 +49,7 @@ int get_buffer_size(int idx)
 
 int* get_image_size(void)
 {
-    return enlight_get_img_sizes(&network_instance);
+    return enlight_get_img_sizes(&network_instance, 0);
 }
 
 char* get_network_name(void)
@@ -108,7 +108,7 @@ int init_network(struct enlight_net* net)
     net->output_size = enlight_get_buf_size(&network_instance, ENLIGHT_BUF_OUTPUT);
 
     net->conv_mac_num = enlight_get_conv_mac_num(&network_instance);
-    net->img_size     = enlight_get_img_sizes(&network_instance);
+    net->img_size     = enlight_get_img_sizes(&network_instance, 0);
     net->batch_size   = enlight_get_batch_size(&network_instance);
     strcpy(net->name, enlight_get_name(&network_instance));
     net->post_type    = enlight_get_post_type(&network_instance);

@@ -51,12 +51,20 @@ char* enlight_get_name(enlight_network_t *inst);
 enlight_postproc_t
         enlight_get_post_type(enlight_network_t *inst);
 
+/** @brief Return input tensors number
+ *
+ *  @param instance Network instance.
+ *  @return         input tensor nubmer
+ */
+int enlight_get_num_inputs(enlight_network_t *inst);
+
 /** @brief Return input image C, H, W
  *
  *  @param instance Network instance.
+ *  @param idx      input index
  *  @return         img_sizes address
  */
-int*    enlight_get_img_sizes(enlight_network_t *inst);
+int* enlight_get_img_sizes(enlight_network_t *inst, int idx);
 
 /** @brief Return batch size
  *

@@ -25,9 +25,16 @@ void classifier_init()
     //
 }
 
+/**
+ * @brief Return the classified class id.
+ * 
+ * @param tensor The output tensor address.
+ * @param num_class The total class number of model.
+ * @return The classified class ID.
+ */
 int classifier_run(
-    enlight_act_tensor_t* tensor,     /**< output tensors          */
-    int           num_class           /**< number of class         */
+    enlight_act_tensor_t* tensor,
+    int num_class
 )
 {
     int dims[4];
